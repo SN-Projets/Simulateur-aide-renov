@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Aides Rénovation 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --noir: #0f0f0f;
+    --blanc: #f7f4ef;
+    --or: #c8a96e;
+    --or-light: #e8d5a3;
+    --vert: #2d6a4f;
+    --vert-light: #40916c;
+    --gris: #6b6b6b;
+    --gris-light: #e8e4dc;
+    --bleu: #1a3a5c;
+    --card-bg: #faf8f4;
+    --shadow: 0 4px 32px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--blanc);
+    color: var(--noir);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--noir);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    color: var(--or);
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+  }
+
+  .logo span {
+    color: var(--blanc);
+    font-style: italic;
+  }
+
+  .header-badge {
+    background: var(--vert);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--noir);
+    padding: 70px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,169,110,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    color: var(--or);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--blanc);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    color: var(--or);
+    font-style: italic;
+  }
+
+  .hero-sub {
+    color: rgba(247,244,239,0.6);
+    font-size: 1rem;
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'DM Serif Display', serif;
+    color: var(--or);
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    color: rgba(247,244,239,0.5);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 780px;
+    margin: -30px auto 60px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    background: white;
+    border-radius: 16px 16px 0 0;
+    padding: 24px 32px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .progress-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gris);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .progress-count {
+    font-size: 0.8rem;
+    color: var(--gris);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--gris-light);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--vert), var(--or));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 0 0 16px 16px;
+    padding: 36px 32px 32px;
+    box-shadow: var(--shadow);
+  }
+
+  /* STEP */
+  .step { display: none; animation: fadeSlide 0.4s ease; }
+  .step.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--vert), var(--vert-light));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  .step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--noir);
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    color: var(--gris);
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  /* OPTIONS GRID */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .options-grid.three-col {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .option-btn {
+    border: 1.5px solid var(--gris-light);
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .option-btn:hover {
+    border-color: var(--vert-light);
+    background: #f0f7f4;
+    transform: translateY(-1px);
+  }
+
+  .option-btn.selected {
+    border-color: var(--vert);
+    background: #eaf4ef;
+    box-shadow: 0 0 0 3px rgba(45,106,79,0.1);
+  }
+
+  .option-icon { font-size: 1.3rem; }
+
+  .option-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--noir);
+    line-height: 1.3;
+  }
+
+  .option-sub {
+    font-size: 0.75rem;
+    color: var(--gris);
+    font-weight: 300;
+  }
+
+  /* SELECT & INPUT */
+  .form-group { margin-bottom: 20px; }
+
+  .form-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--noir);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .form-select, .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--gris-light);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    color: var(--noir);
+    background: var(--card-bg);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-select:focus, .form-input:focus {
+    border-color: var(--vert);
+    background: white;
+  }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gris);
+    pointer-events: none;
+    font-size: 0.9rem;
+  }
+
+  /* REVENUS SLIDER */
+  .revenus-display {
+    background: var(--noir);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .revenus-amount {
+    font-family: 'DM Serif Display', serif;
+    color: var(--or);
+    font-size: 1.8rem;
+  }
+
+  .revenus-profil {
+    text-align: right;
+  }
+
+  .profil-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .profil-bleu { background: #dbeafe; color: #1e40af; }
+  .profil-jaune { background: #fef3c7; color: #92400e; }
+  .profil-violet { background: #ede9fe; color: #6d28d9; }
+  .profil-rose { background: #fce7f3; color: #9d174d; }
+
+  .profil-label {
+    font-size: 0.72rem;
+    color: rgba(247,244,239,0.5);
+    margin-top: 4px;
+    display: block;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--gris-light);
+    outline: none;
+    cursor: pointer;
+    accent-color: var(--vert);
+    margin-bottom: 12px;
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--gris);
+  }
+
+  /* TRAVAUX CHECKBOXES */
+  .travaux-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .travaux-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1.5px solid var(--gris-light);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card-bg);
+  }
+
+  .travaux-item:hover { border-color: var(--vert-light); background: #f0f7f4; }
+  .travaux-item.checked { border-color: var(--vert); background: #eaf4ef; }
+
+  .travaux-item input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--vert);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .travaux-info { flex: 1; }
+
+  .travaux-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--noir);
+  }
+
+  .travaux-desc {
+    font-size: 0.75rem;
+    color: var(--gris);
+    margin-top: 2px;
+    font-weight: 300;
+  }
+
+  .travaux-aide {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--vert);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ALERTE */
+  .alerte {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .alerte-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  .alerte-text {
+    font-size: 0.82rem;
+    color: #78350f;
+    line-height: 1.5;
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    background: var(--noir);
+    color: var(--blanc);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover {
+    background: #1a1a1a;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-secondary {
+    background: none;
+    border: none;
+    color: var(--gris);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 10px;
+    display: block;
+    margin: 10px auto 0;
+    text-decoration: underline;
+  }
+
+  .btn-secondary:hover { color: var(--noir); }
+
+  .btn-or {
+    width: 100%;
+    background: linear-gradient(135deg, var(--vert), var(--vert-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 18px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-or:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(45,106,79,0.3);
+  }
+
+  /* RÉSULTATS */
+  .resultat-hero {
+    background: var(--noir);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .resultat-label {
+    color: rgba(247,244,239,0.5);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .resultat-montant {
+    font-family: 'DM Serif Display', serif;
+    color: var(--or);
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .resultat-sub {
+    color: rgba(247,244,239,0.6);
+    font-size: 0.85rem;
+    font-weight: 300;
+  }
+
+  .aides-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .aide-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gris-light);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .aide-card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gris);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .aide-card-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--vert);
+  }
+
+  .aide-card-desc {
+    font-size: 0.72rem;
+    color: var(--gris);
+    margin-top: 4px;
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  .reste-charge {
+    background: linear-gradient(135deg, #f0f7f4, #eaf4ef);
+    border: 1.5px solid var(--vert-light);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .reste-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--vert);
+  }
+
+  .reste-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--vert);
+  }
+
+  .info-box {
+    background: #f0f7f4;
+    border-left: 3px solid var(--vert);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+  }
+
+  .info-box-text {
+    font-size: 0.82rem;
+    color: #1a3a2a;
+    line-height: 1.5;
+  }
+
+  /* FORM CONTACT */
+  .contact-form {
+    background: var(--noir);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .contact-title {
+    font-family: 'DM Serif Display', serif;
+    color: var(--blanc);
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+
+  .contact-sub {
+    color: rgba(247,244,239,0.5);
+    font-size: 0.82rem;
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+
+  .contact-form .form-input {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: var(--blanc);
+    margin-bottom: 12px;
+  }
+
+  .contact-form .form-input::placeholder { color: rgba(247,244,239,0.3); }
+  .contact-form .form-input:focus { border-color: var(--or); background: rgba(255,255,255,0.12); }
+
+  .rgpd {
+    font-size: 0.72rem;
+    color: rgba(247,244,239,0.35);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* SUCCESS */
+  .success-screen {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--vert), var(--vert-light));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 24px;
+  }
+
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--noir);
+    margin-bottom: 12px;
+  }
+
+  .success-text {
+    color: var(--gris);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto 32px;
+    font-weight: 300;
+  }
+
+  .success-recap {
+    background: var(--card-bg);
+    border: 1px solid var(--gris-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .success-recap-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    color: var(--vert);
+    margin-bottom: 4px;
+  }
+
+  .success-recap-label {
+    font-size: 0.82rem;
+    color: var(--gris);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gris);
+    font-size: 0.78rem;
+    line-height: 1.6;
+  }
+
+  footer strong { color: var(--noir); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    header { padding: 16px 20px; }
+    .hero { padding: 50px 20px 60px; }
+    .hero-stats { gap: 24px; }
+    .card { padding: 24px 20px; }
+    .progress-wrap { padding: 20px 20px 0; }
+    .options-grid { grid-template-columns: 1fr; }
+    .options-grid.three-col { grid-template-columns: 1fr 1fr; }
+    .aides-grid { grid-template-columns: 1fr; }
+    .resultat-montant { font-size: 2.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Rénov<span>Expert</span></div>
+  <div class="header-badge">✓ Barèmes 2026</div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Simulateur officiel gratuit</div>
+  <h1>Découvrez vos aides<br><em>rénovation énergétique</em></h1>
+  <p class="hero-sub">Calculez en 2 minutes les subventions auxquelles vous avez droit — MaPrimeRénov', CEE, éco-PTZ — selon votre profil exact.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-number">24 000€</div>
+      <div class="stat-label">Aide moyenne max.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">80%</div>
+      <div class="stat-label">Prise en charge</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">2 min</div>
+      <div class="stat-label">Pour simuler</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span class="progress-label">Votre simulation</span>
+      <span class="progress-count" id="progressCount">Étape 1 sur 5</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:20%"></div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- ÉTAPE 1 : Type de logement -->
+    <div class="step active" id="step1">
+      <div class="step-icon">🏠</div>
+      <h2 class="step-title">Votre logement</h2>
+      <p class="step-desc">Quel type de bien souhaitez-vous rénover ?</p>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(this, 'logement', 'maison')">
+          <span class="option-icon">🏡</span>
+          <span class="option-label">Maison individuelle</span>
+          <span class="option-sub">Maison, pavillon, villa</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 'logement', 'appartement')">
+          <span class="option-icon">🏢</span>
+          <span class="option-label">Appartement</span>
+          <span class="option-sub">En copropriété</span>
+        </button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Année de construction</label>
+        <div class="select-wrap">
+          <select class="form-select" id="anneeConstruction" onchange="updateData('annee', this.value)">
+            <option value="">Sélectionnez une période</option>
+            <option value="avant1948">Avant 1948</option>
+            <option value="1948-1974">1948 – 1974</option>
+            <option value="1975-1989">1975 – 1989</option>
+            <option value="1990-2005">1990 – 2005</option>
+            <option value="apres2005">Après 2005</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Êtes-vous propriétaire occupant ou bailleur ?</label>
+        <div class="select-wrap">
+          <select class="form-select" id="statutProp" onchange="updateData('statut', this.value)">
+            <option value="">Sélectionnez votre statut</option>
+            <option value="occupant">Propriétaire occupant</option>
+            <option value="bailleur">Propriétaire bailleur</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="nextStep()" id="btn1" disabled>
+        Continuer <span>→</span>
+      </button>
+    </div>
+
+    <!-- ÉTAPE 2 : Revenus -->
+    <div class="step" id="step2">
+      <div class="step-icon">💶</div>
+      <h2 class="step-title">Vos revenus</h2>
+      <p class="step-desc">Le montant des aides dépend de votre revenu fiscal de référence (indiqué sur votre avis d'imposition).</p>
+
+      <div class="form-group">
+        <label class="form-label">Nombre de personnes dans le foyer</label>
+        <div class="select-wrap">
+          <select class="form-select" id="nbPersonnes" onchange="updateRevenus()">
+            <option value="1">1 personne</option>
+            <option value="2" selected>2 personnes</option>
+            <option value="3">3 personnes</option>
+            <option value="4">4 personnes</option>
+            <option value="5">5 personnes ou plus</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Zone géographique</label>
+        <div class="select-wrap">
+          <select class="form-select" id="zone" onchange="updateRevenus()">
+            <option value="province">Province (hors Île-de-France)</option>
+            <option value="idf">Île-de-France</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="revenus-display">
+        <div>
+          <div style="color:rgba(247,244,239,0.5);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Revenu fiscal annuel</div>
+          <div class="revenus-amount" id="revenus-display">25 000 €</div>
+        </div>
+        <div class="revenus-profil">
+          <div class="profil-badge profil-bleu" id="profil-badge">🔵 Bleu</div>
+          <span class="profil-label" id="profil-label">Revenus très modestes</span>
+        </div>
+      </div>
+
+      <input type="range" id="revenusSlider" min="0" max="120000" step="1000" value="25000" oninput="updateRevenus()">
+      <div class="range-labels">
+        <span>0 €</span>
+        <span>60 000 €</span>
+        <span>120 000 €</span>
+      </div>
+
+      <div style="margin-top:20px;"></div>
+      <button class="btn-primary" onclick="nextStep()">Continuer <span>→</span></button>
+      <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+    </div>
+
+    <!-- ÉTAPE 3 : Travaux -->
+    <div class="step" id="step3">
+      <div class="step-icon">🔧</div>
+      <h2 class="step-title">Vos travaux</h2>
+      <p class="step-desc">Sélectionnez les travaux envisagés. Plusieurs choix possibles.</p>
+
+      <div class="alerte">
+        <span class="alerte-icon">⚠️</span>
+        <span class="alerte-text"><strong>Nouveauté 2026 :</strong> L'isolation des murs (ITE/ITI) n'est plus éligible en monogeste. Elle doit s'inscrire dans une rénovation d'ampleur (minimum 2 travaux d'isolation + gain de 2 classes DPE).</span>
+      </div>
+
+      <div class="travaux-list" id="travauxList">
+        <!-- Généré par JS -->
+      </div>
+
+      <button class="btn-primary" onclick="nextStep()" id="btn3" disabled>
+        Calculer mes aides <span>→</span>
+      </button>
+      <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+    </div>
+
+    <!-- ÉTAPE 4 : Résultats -->
+    <div class="step" id="step4">
+      <div class="step-icon">📊</div>
+      <h2 class="step-title">Vos aides estimées</h2>
+      <p class="step-desc">Voici une estimation personnalisée basée sur votre profil.</p>
+
+      <div class="resultat-hero">
+        <div class="resultat-label">Total des aides estimées</div>
+        <div class="resultat-montant" id="totalAides">0 €</div>
+        <div class="resultat-sub" id="totalSub">Selon votre profil <span id="profilResult"></span></div>
+      </div>
+
+      <div class="aides-grid" id="aidesGrid">
+        <!-- Généré par JS -->
+      </div>
+
+      <div class="reste-charge">
+        <div>
+          <div class="reste-label">Reste à charge estimé</div>
+          <div style="font-size:0.78rem;color:var(--gris);margin-top:4px;">Sur un chantier de <span id="coutChantier">0 €</span></div>
+        </div>
+        <div class="reste-amount" id="resteCharge">0 €</div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-text" id="infoBoxText">
+          Ces montants sont des estimations. Un conseiller France Rénov' peut affiner votre dossier gratuitement.
+        </div>
+      </div>
+
+      <button class="btn-or" onclick="nextStep()">
+        🎯 Être contacté par un expert gratuit
+      </button>
+      <button class="btn-secondary" onclick="prevStep()">← Modifier mes choix</button>
+    </div>
+
+    <!-- ÉTAPE 5 : Contact -->
+    <div class="step" id="step5">
+      <div class="step-icon">📞</div>
+      <h2 class="step-title">Finalisez votre simulation</h2>
+      <p class="step-desc">Un expert RGE de votre région vous rappelle gratuitement pour confirmer vos droits et lancer votre dossier.</p>
+
+      <div class="contact-form">
+        <div class="contact-title">Vos coordonnées</div>
+        <div class="contact-sub">Rappel gratuit sous 24h, sans engagement</div>
+        <input type="text" class="form-input" id="contactNom" placeholder="Votre prénom et nom">
+        <input type="tel" class="form-input" id="contactTel" placeholder="Votre téléphone">
+        <input type="email" class="form-input" id="contactEmail" placeholder="Votre e-mail">
+        <input type="text" class="form-input" id="contactVille" placeholder="Votre ville / code postal">
+        <p class="rgpd">🔒 Vos données sont confidentielles et ne seront utilisées que pour vous rappeler. Conformément au RGPD, vous pouvez demander leur suppression à tout moment.</p>
+      </div>
+
+      <button class="btn-or" onclick="submitContact()">
+        ✅ Recevoir mon étude personnalisée
+      </button>
+      <button class="btn-secondary" onclick="prevStep()">← Retour</button>
+    </div>
+
+    <!-- SUCCÈS -->
+    <div class="step" id="stepSuccess">
+      <div class="success-screen">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">Demande enregistrée !</h2>
+        <p class="success-text">Un expert RGE de votre région va vous contacter sous 24h pour confirmer vos aides et préparer votre dossier.</p>
+        <div class="success-recap">
+          <div class="success-recap-amount" id="successAmount">0 €</div>
+          <div class="success-recap-label">d'aides potentielles identifiées pour votre projet</div>
+        </div>
+        <button class="btn-primary" onclick="resetSimulator()">
+          🔄 Nouvelle simulation
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <strong>RénovExpert</strong> — Simulateur d'aides rénovation énergétique<br>
+  Données basées sur les barèmes officiels ANAH 2026 · Résultats indicatifs<br>
+  <a href="https://france-renov.gouv.fr" target="_blank" style="color:var(--vert);">france-renov.gouv.fr</a>
+</footer>
+
+<script>
+// =====================
+// DONNÉES
+// =====================
+
+const data = {
+  logement: null,
+  annee: null,
+  statut: null,
+  revenus: 25000,
+  nbPersonnes: 2,
+  zone: 'province',
+  travaux: [],
+  profil: 'bleu'
+};
+
+// Barèmes plafonds revenus ANAH 2026 (province, par nb personnes)
+const baremes = {
+  province: {
+    1: { bleu: 17009, jaune: 21805, violet: 30427 },
+    2: { bleu: 24875, jaune: 31889, violet: 44497 },
+    3: { bleu: 29917, jaune: 38349, violet: 53488 },
+    4: { bleu: 34948, jaune: 44802, violet: 62476 },
+    5: { bleu: 40002, jaune: 51281, violet: 71465 }
+  },
+  idf: {
+    1: { bleu: 25714, jaune: 32974, violet: 47230 },
+    2: { bleu: 37538, jaune: 48117, violet: 69088 },
+    3: { bleu: 45144, jaune: 57875, violet: 82981 },
+    4: { bleu: 52738, jaune: 67623, violet: 96974 },
+    5: { bleu: 60334, jaune: 77396, violet: 110983 }
+  }
+};
+
+// Travaux disponibles avec aides par profil
+const travauxDisponibles = [
+  {
+    id: 'ite',
+    nom: 'Isolation murs extérieur (ITE)',
+    desc: 'Rénovation d\'ampleur obligatoire en 2026',
+    icon: '🧱',
+    aides: { bleu: 75, jaune: 60, violet: 40, rose: 0 }, // €/m²
+    surface: 100,
+    ampleur: true,
+    coutBase: 15000
+  },
+  {
+    id: 'combles',
+    nom: 'Isolation combles / toiture',
+    desc: 'Très efficace, fortement subventionnée',
+    icon: '🏘️',
+    aides: { bleu: 25, jaune: 20, violet: 15, rose: 0 }, // €/m²
+    surface: 80,
+    ampleur: false,
+    coutBase: 6000
+  },
+  {
+    id: 'plancher',
+    nom: 'Isolation plancher bas',
+    desc: 'Réduit les pertes thermiques par le sol',
+    icon: '⬇️',
+    aides: { bleu: 7, jaune: 6, violet: 4, rose: 0 }, // €/m²
+    surface: 80,
+    ampleur: false,
+    coutBase: 4000
+  },
+  {
+    id: 'fenetres',
+    nom: 'Remplacement fenêtres / menuiseries',
+    desc: 'Double ou triple vitrage',
+    icon: '🪟',
+    aides: { bleu: 100, jaune: 80, violet: 40, rose: 0 }, // par équipement
+    surface: 10,
+    ampleur: false,
+    coutBase: 5000
+  },
+  {
+    id: 'pac',
+    nom: 'Pompe à chaleur air-eau',
+    desc: 'Remplace chaudière fioul/gaz',
+    icon: '♻️',
+    aides: { bleu: 5000, jaune: 4000, violet: 3000, rose: 0 },
+    surface: 1,
+    ampleur: false,
+    coutBase: 12000
+  },
+  {
+    id: 'vmc',
+    nom: 'VMC double flux',
+    desc: 'Ventilation mécanique contrôlée',
+    icon: '💨',
+    aides: { bleu: 1500, jaune: 1200, violet: 800, rose: 0 },
+    surface: 1,
+    ampleur: false,
+    coutBase: 3000
+  }
+];
+
+let currentStep = 1;
+const totalSteps = 5;
+
+// =====================
+// NAVIGATION
+// =====================
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  if (n > totalSteps) {
+    document.getElementById('stepSuccess').classList.add('active');
+    document.querySelector('.progress-wrap').style.display = 'none';
+  } else {
+    document.getElementById('step' + n).classList.add('active');
+    document.getElementById('progressCount').textContent = `Étape ${n} sur ${totalSteps}`;
+    document.getElementById('progressFill').style.width = (n / totalSteps * 100) + '%';
+  }
+}
+
+function nextStep() {
+  if (currentStep === 3) computeResultats();
+  currentStep++;
+  showStep(currentStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep() {
+  currentStep--;
+  showStep(currentStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =====================
+// ÉTAPE 1
+// =====================
+
+function selectOption(btn, key, value) {
+  btn.closest('.options-grid').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  data[key] = value;
+  checkStep1();
+}
+
+function updateData(key, value) {
+  data[key] = value;
+  checkStep1();
+}
+
+function checkStep1() {
+  const ok = data.logement && data.annee && data.statut;
+  document.getElementById('btn1').disabled = !ok;
+}
+
+// =====================
+// ÉTAPE 2 — REVENUS
+// =====================
+
+function updateRevenus() {
+  const slider = document.getElementById('revenusSlider');
+  const nb = parseInt(document.getElementById('nbPersonnes').value);
+  const zone = document.getElementById('zone').value;
+  const revenus = parseInt(slider.value);
+
+  data.revenus = revenus;
+  data.nbPersonnes = nb;
+  data.zone = zone;
+
+  // Affichage montant
+  document.getElementById('revenus-display').textContent = revenus.toLocaleString('fr-FR') + ' €';
+
+  // Calcul profil
+  const seuils = baremes[zone][Math.min(nb, 5)];
+  let profil, badge, label;
+
+  if (revenus <= seuils.bleu) {
+    profil = 'bleu'; badge = '🔵 Bleu'; label = 'Revenus très modestes';
+  } else if (revenus <= seuils.jaune) {
+    profil = 'jaune'; badge = '🟡 Jaune'; label = 'Revenus modestes';
+  } else if (revenus <= seuils.violet) {
+    profil = 'violet'; badge = '🟣 Violet'; label = 'Revenus intermédiaires';
+  } else {
+    profil = 'rose'; badge = '🩷 Rose'; label = 'Revenus supérieurs';
+  }
+
+  data.profil = profil;
+  const badgeEl = document.getElementById('profil-badge');
+  badgeEl.textContent = badge;
+  badgeEl.className = 'profil-badge profil-' + profil;
+  document.getElementById('profil-label').textContent = label;
+}
+
+// =====================
+// ÉTAPE 3 — TRAVAUX
+// =====================
+
+function initTravaux() {
+  const list = document.getElementById('travauxList');
+  list.innerHTML = '';
+  travauxDisponibles.forEach(t => {
+    const aide = t.aides[data.profil];
+    const aideText = t.id === 'ite' || t.id === 'combles' || t.id === 'plancher'
+      ? aide + ' €/m²'
+      : aide.toLocaleString('fr-FR') + ' €';
+    const disabled = data.profil === 'rose' && t.id !== 'ite' ? 'opacity:0.4;pointer-events:none;' : '';
+    list.innerHTML += `
+      <label class="travaux-item" style="${disabled}" onclick="toggleTravaux(this, '${t.id}')">
+        <input type="checkbox" value="${t.id}" onchange="checkStep3()">
+        <div class="travaux-info">
+          <div class="travaux-name">${t.icon} ${t.nom}</div>
+          <div class="travaux-desc">${t.desc}${t.ampleur ? ' · <strong>Rénovation d\'ampleur</strong>' : ''}</div>
+        </div>
+        <div class="travaux-aide">${data.profil === 'rose' ? 'Non éligible' : aideText}</div>
+      </label>
+    `;
+  });
+}
+
+function toggleTravaux(label, id) {
+  label.classList.toggle('checked');
+  checkStep3();
+}
+
+function checkStep3() {
+  const checked = document.querySelectorAll('#travauxList input[type="checkbox"]:checked');
+  data.travaux = Array.from(checked).map(c => c.value);
+  document.getElementById('btn3').disabled = data.travaux.length === 0;
+}
+
+// =====================
+// ÉTAPE 4 — RÉSULTATS
+// =====================
+
+function computeResultats() {
+  let totalMPR = 0;
+  let totalCEE = 0;
+  let totalCout = 0;
+  let hasAmpleur = false;
+
+  const selectedTravaux = travauxDisponibles.filter(t => data.travaux.includes(t.id));
+  const isAmpleur = selectedTravaux.some(t => t.ampleur) && selectedTravaux.length >= 2;
+
+  selectedTravaux.forEach(t => {
+    const aide = t.aides[data.profil] || 0;
+    let montant = 0;
+
+    if (t.id === 'ite' || t.id === 'combles' || t.id === 'plancher') {
+      montant = aide * t.surface;
+    } else if (t.id === 'fenetres') {
+      montant = aide * t.surface;
+    } else {
+      montant = aide;
+    }
+
+    if (isAmpleur || !t.ampleur) {
+      totalMPR += montant;
+    }
+    totalCout += t.coutBase;
+  });
+
+  // Bonus rénovation d'ampleur
+  if (isAmpleur) {
+    const tauxAmpleur = { bleu: 0.60, jaune: 0.50, violet: 0.35, rose: 0.15 };
+    const plafond = { bleu: 40000, jaune: 40000, violet: 30000, rose: 30000 };
+    totalMPR = Math.min(totalCout, plafond[data.profil]) * tauxAmpleur[data.profil];
+  }
+
+  // Plafond 20 000€ sur 5 ans (monogeste)
+  if (!isAmpleur) totalMPR = Math.min(totalMPR, 20000);
+
+  // CEE estimé (20% du coût pour modestes, 15% autres)
+  const tauxCEE = { bleu: 0.20, jaune: 0.15, violet: 0.10, rose: 0.05 };
+  totalCEE = totalCout * tauxCEE[data.profil];
+
+  // TVA réduite économie estimée
+  const ecoPTZ = data.profil === 'bleu' || data.profil === 'jaune' ? 5000 : 0;
+
+  const totalAides = Math.round(totalMPR + totalCEE + ecoPTZ);
+  const resteCharge = Math.max(0, totalCout - totalAides);
+
+  // Affichage
+  document.getElementById('totalAides').textContent = totalAides.toLocaleString('fr-FR') + ' €';
+  document.getElementById('profilResult').textContent = 'profil ' + data.profil;
+  document.getElementById('coutChantier').textContent = totalCout.toLocaleString('fr-FR') + ' €';
+  document.getElementById('resteCharge').textContent = resteCharge.toLocaleString('fr-FR') + ' €';
+  document.getElementById('successAmount').textContent = totalAides.toLocaleString('fr-FR') + ' €';
+
+  // Cartes aides
+  const grid = document.getElementById('aidesGrid');
+  grid.innerHTML = `
+    <div class="aide-card">
+      <div class="aide-card-title">MaPrimeRénov'</div>
+      <div class="aide-card-amount">${Math.round(totalMPR).toLocaleString('fr-FR')} €</div>
+      <div class="aide-card-desc">Subvention ANAH selon vos revenus et travaux</div>
+    </div>
+    <div class="aide-card">
+      <div class="aide-card-title">Prime CEE</div>
+      <div class="aide-card-amount">${Math.round(totalCEE).toLocaleString('fr-FR')} €</div>
+      <div class="aide-card-desc">Certificats d'économies d'énergie (fournisseurs)</div>
+    </div>
+    <div class="aide-card">
+      <div class="aide-card-title">TVA réduite</div>
+      <div class="aide-card-amount">5,5%</div>
+      <div class="aide-card-desc">Au lieu de 20% sur tous les travaux éligibles</div>
+    </div>
+    <div class="aide-card">
+      <div class="aide-card-title">Éco-PTZ</div>
+      <div class="aide-card-amount">${ecoPTZ > 0 ? 'Jusqu\'à 50 000 €' : 'Non prioritaire'}</div>
+      <div class="aide-card-desc">Prêt à taux zéro sur 20 ans pour financer le reste</div>
+    </div>
+  `;
+
+  const pct = Math.round(totalAides / totalCout * 100);
+  document.getElementById('infoBoxText').innerHTML = `
+    <strong>Taux de prise en charge estimé : ${pct}%</strong><br>
+    ${isAmpleur ? '✅ Votre projet est éligible à la rénovation d\'ampleur — les aides sont maximales.' : '📌 Projet monogeste — certains travaux comme l\'ITE nécessitent une rénovation d\'ampleur pour être subventionnés.'}
+  `;
+}
+
+// =====================
+// CONTACT + FIREBASE
+// =====================
+
+async function submitContact() {
+  const nom = document.getElementById('contactNom').value.trim();
+  const tel = document.getElementById('contactTel').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const ville = document.getElementById('contactVille').value.trim();
+
+  if (!nom || !tel) {
+    alert('Merci de renseigner au minimum votre nom et téléphone.');
+    return;
+  }
+
+  // Stockage local (Firebase à connecter)
+  const lead = {
+    nom, tel, email, ville,
+    profil: data.profil,
+    revenus: data.revenus,
+    logement: data.logement,
+    travaux: data.travaux,
+    date: new Date().toISOString()
+  };
+
+  console.log('Lead capturé :', lead);
+  // TODO: await saveLead(lead); // Firebase Firestore
+
+  currentStep = totalSteps + 1;
+  showStep(currentStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetSimulator() {
+  location.reload();
+}
+
+// =====================
+// INIT
+// =====================
+
+document.getElementById('step3').addEventListener('mouseenter', initTravaux);
+
+// Init revenus display
+updateRevenus();
+
+// Pré-init travaux au clic sur étape 3
+const origNext = window.nextStep;
+window.nextStep = function() {
+  if (currentStep === 2) {
+    setTimeout(initTravaux, 50);
+  }
+  if (currentStep === 3) computeResultats();
+  currentStep++;
+  showStep(currentStep);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+</script>
+
+</body>
+</html>
